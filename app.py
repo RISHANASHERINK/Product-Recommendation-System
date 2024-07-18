@@ -40,28 +40,16 @@ def get_laptop_recommendations(query):
 
 # Function to get recommendations for electronics products
 def get_electronics_recommendations(query):
-    # Initialize a DataFrame with the query dictionary
     query_df = pd.DataFrame([query])
-
-    # Ensure there are no NaN values in relevant columns
     query_df = query_df.dropna(subset=['main_category', 'sub_category'])
-
-    # Concatenate features
     query_df['combined_features'] = query_df['main_category'] + ' ' + query_df['sub_category']
-
-    # Transform using TF-IDF vectorizer
     query_tfidf = electronics_tfidf_vectorizer.transform(query_df['combined_features'])
     query_sim = cosine_similarity(query_tfidf, electronics_tfidf_matrix)
-
-    # Calculate similarity scores
     sim_scores = list(enumerate(query_sim[0]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     sim_scores = sim_scores[1:6]  # Get top 5 similar electronics products
     product_indices = [i[0] for i in sim_scores]
-
-    # Return recommended electronics products
     return electronics_df.iloc[product_indices]
-
 
 # Streamlit app
 st.title('Product Recommendation System')
@@ -71,15 +59,15 @@ st.sidebar.title('Search Filters')
 product_type = st.sidebar.selectbox('Product Type', ['Laptops', 'Electronics'])
 
 if product_type == 'Laptops':
-    company = st.sidebar.text_input('Company', 'dell')
-    type_name = st.sidebar.text_input('Type Name', 'ultrabook')
-    inches = st.sidebar.text_input('Inches', '13.3')
-    screen_resolution = st.sidebar.text_input('Screen Resolution', '1920x1080')
-    cpu = st.sidebar.text_input('CPU', 'intel core i5')
-    ram = st.sidebar.text_input('RAM', '8gb')
-    memory = st.sidebar.text_input('Memory', '256gb ssd')
-    gpu = st.sidebar.text_input('GPU', 'intel hd graphics 620')
-    opsys = st.sidebar.text_input('Operating System', 'windows 10')
+    company = st.sidebar.selectbox('Company', laptops_df['Company'].unique())
+    type_name = st.sidebar.selectbox('Type Name', laptops_df['TypeName'].unique())
+    inches = st.sidebar.selectbox('Inches', laptops_df['Inches'].unique())
+    screen_resolution = st.sidebar.selectbox('Screen Resolution', laptops_df['ScreenResolution'].unique())
+    cpu = st.sidebar.selectbox('CPU', laptops_df['Cpu'].unique())
+    ram = st.sidebar.selectbox('RAM', laptops_df['Ram'].unique())
+    memory = st.sidebar.selectbox('Memory', laptops_df['Memory'].unique())
+    gpu = st.sidebar.selectbox('GPU', laptops_df['Gpu'].unique())
+    opsys = st.sidebar.selectbox('Operating System', laptops_df['OpSys'].unique())
 
     laptop_query = {
         'Company': company,
@@ -103,8 +91,8 @@ if product_type == 'Laptops':
             st.markdown("---")
 
 elif product_type == 'Electronics':
-    main_category = st.sidebar.text_input('Main Category', 'smartphone')
-    sub_category = st.sidebar.text_input('Sub Category', 'android')
+    main_category = st.sidebar.selectbox('Main Category', electronics_df['main_category'].unique())
+    sub_category = st.sidebar.selectbox('Sub Category', electronics_df['sub_category'].unique())
     
     electronics_query = {
         'main_category': main_category,
@@ -123,3 +111,4 @@ elif product_type == 'Electronics':
             # st.image(row['image'], use_column_width=True)
             st.markdown(f"[Product Link]({row['link']})")
             st.markdown("---")
+
