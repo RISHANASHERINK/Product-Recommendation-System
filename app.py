@@ -83,7 +83,7 @@ def get_electronics_recommendations(query):
     query_sim = cosine_similarity(query_tfidf, electronics_tfidf_matrix)
     sim_scores = list(enumerate(query_sim[0]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = sim_scores[1:6]  # Get top 5 similar electronics products
+    sim_scores = sim_scores[:5]  # Get top 5 similar electronics products
     product_indices = [i[0] for i in sim_scores]
     return electronics_df.iloc[product_indices]
 
@@ -141,8 +141,8 @@ else:
                 st.markdown("---")
 
     elif product_type == 'Electronics':
-        main_category = st.sidebar.selectbox('Main Category', electronics_df['main_category'].unique())
-        sub_category = st.sidebar.selectbox('Sub Category', electronics_df['sub_category'].unique())
+        main_category = st.sidebar.text_input('Main Category')
+        sub_category = st.sidebar.text_input('Sub Category')
         
         electronics_query = {
             'main_category': main_category,
